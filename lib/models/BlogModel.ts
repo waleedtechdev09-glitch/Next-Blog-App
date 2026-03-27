@@ -39,6 +39,11 @@ const BlogSchema = new mongoose.Schema(
       type: Date,
       default: Date.now,
     },
+    slug: {
+      type: String,
+      unique: true,
+      sparse: true,
+    },
   },
   {
     timestamps: true,

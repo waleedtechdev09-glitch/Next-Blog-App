@@ -12,6 +12,7 @@ interface Blog {
   author: string;
   authorImage: string;
   createdAt: string;
+  slug: string;
 }
 
 const BlogList = () => {
@@ -109,8 +110,8 @@ const BlogList = () => {
         {filteredBlogs.map((blog) => (
           <BlogItem
             key={blog._id}
-            id={blog._id}
             title={blog.title}
+            id={blog.slug || blog._id}
             desc={blog.description}
             image={blog.image}
             category={blog.category}

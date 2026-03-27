@@ -3,6 +3,7 @@ import React from "react";
 import Footer from "@/components/Footer";
 import Link from "next/link";
 import LikeButton from "@/components/LikeButton"; // ← add karo
+import CommentSection from "@/components/CommentSection";
 
 interface Blog {
   _id: string;
@@ -146,7 +147,9 @@ const BlogPage = async ({ params }: PageProps) => {
           <LikeButton blogId={blog._id} initialLikes={blog.likes || 0} />
         </div>
       </div>
-
+      <div className="max-w-3xl mx-auto px-6 pb-16">
+        <CommentSection blogId={blog._id} />
+      </div>
       <Footer />
     </>
   );

@@ -1,5 +1,3 @@
-// app/api/blog/[id]/route.ts
-
 import ConnectDB from "@/lib/config/db";
 import BlogModel from "@/lib/models/BlogModel";
 import { NextResponse } from "next/server";
@@ -11,7 +9,13 @@ export async function GET(
   try {
     await ConnectDB();
     const { id } = await params;
-    const blog = await BlogModel.findById(id);
+
+    // Pehle slug se dhundo, nahi mila to _id se try karo
+    let blog = await BlogModel.findOne({ slug: id });
+
+    if (!blog) {
+      blog = await BlogModel.findById(id).catch(() => null);
+    }
 
     if (!blog) {
       return NextResponse.json(
@@ -20,7 +24,6 @@ export async function GET(
       );
     }
 
-    // Wrap the blog in a success object
     return NextResponse.json({ success: true, blog });
   } catch (error) {
     return NextResponse.json(

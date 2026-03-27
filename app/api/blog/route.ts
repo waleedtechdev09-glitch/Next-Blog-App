@@ -1,12 +1,11 @@
-// app/api/blog/route.ts
-
 import { NextRequest, NextResponse } from "next/server";
 import { writeFile, mkdir, unlink } from "fs/promises";
 import path from "path";
 import ConnectDB from "@/lib/config/db";
 import BlogModel from "@/lib/models/BlogModel";
+import slugify from "slugify";
 
-// GET ALL BLOGS ✅
+// GET ALL BLOGS
 export async function GET() {
   try {
     await ConnectDB();
@@ -26,7 +25,6 @@ export async function POST(request: NextRequest) {
   try {
     await ConnectDB();
 
-    // 1. FormData lo (JSON nahi, kyunki image bhi aa rahi hai)
     const formData = await request.formData();
 
     const title = formData.get("title") as string;
@@ -36,7 +34,6 @@ export async function POST(request: NextRequest) {
     const image = formData.get("image") as File;
     const authorImage = formData.get("authorImage") as File;
 
-    // 2. Required fields check karo
     if (
       !title ||
       !description ||
@@ -51,7 +48,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 3. Sirf images allow karo
     const allowedTypes = ["image/jpeg", "image/png", "image/webp", "image/jpg"];
     if (
       !allowedTypes.includes(image.type) ||
@@ -66,11 +62,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 4. Upload folder banao agar exist nahi karta
     const uploadDir = path.join(process.cwd(), "public", "uploads");
     await mkdir(uploadDir, { recursive: true });
 
-    // 5. Image save karo — unique name ke saath
     const timestamp = Date.now();
 
     const imageExt = image.type.split("/")[1];
@@ -86,13 +80,25 @@ export async function POST(request: NextRequest) {
       Buffer.from(authorImageBytes),
     );
 
-    // 6. DB mein path save karo
+    // ── Slug generation ──────────────────────────────
+    const baseSlug = slugify(title, { lower: true, strict: true });
+    let slug = baseSlug;
+    let count = 1;
+
+    // Duplicate slug check
+    while (await BlogModel.findOne({ slug })) {
+      slug = `${baseSlug}-${count}`;
+      count++;
+    }
+    // ────────────────────────────────────────────────────
+
     const newBlog = await BlogModel.create({
       title,
       description,
       category,
       author,
       likes: 0,
+      slug,
       image: `/uploads/${imageName}`,
       authorImage: `/uploads/${authorImageName}`,
     });
@@ -118,11 +124,11 @@ export async function POST(request: NextRequest) {
   }
 }
 
+// DELETE A BLOG
 export async function DELETE(request: NextRequest) {
   try {
     await ConnectDB();
 
-    // Extract ID from the URL (?id=...)
     const { searchParams } = new URL(request.url);
     const id = searchParams.get("id");
 
@@ -133,7 +139,6 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
-    // 1. Find blog to get image paths before deleting record
     const blog = await BlogModel.findById(id);
     if (!blog) {
       return NextResponse.json(
@@ -142,17 +147,14 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
-    // 2. Delete the physical images from the public folder
     const imagePath = path.join(process.cwd(), "public", blog.image);
     const authorImgPath = path.join(process.cwd(), "public", blog.authorImage);
 
-    // Using .catch to ignore errors if the file was already manually deleted
     await unlink(imagePath).catch(() => console.log("Blog image already gone"));
     await unlink(authorImgPath).catch(() =>
       console.log("Author image already gone"),
     );
 
-    // 3. Delete the record from MongoDB
     await BlogModel.findByIdAndDelete(id);
 
     return NextResponse.json({ success: true, message: "Blog deleted" });

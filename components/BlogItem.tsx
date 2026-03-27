@@ -3,7 +3,7 @@ import React from "react";
 import { ArrowRight } from "lucide-react";
 
 interface BlogItemProps {
-  id: string; // ✅
+  id: string;
   title: string;
   desc: string;
   image: string;
