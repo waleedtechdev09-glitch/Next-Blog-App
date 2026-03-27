@@ -1,5 +1,3 @@
-// app/blog/[id]/page.tsx
-
 import Image from "next/image";
 import React from "react";
 import Footer from "@/components/Footer";

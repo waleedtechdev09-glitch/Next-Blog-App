@@ -1,46 +1,61 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import Image from "next/image";
 import { Trash2, Loader2, AlertTriangle, X } from "lucide-react";
 import axios from "axios";
 import { toast } from "react-toastify";
 
+// 1. Define the Blog Interface
+interface Blog {
+  _id: string;
+  title: string;
+  image: string;
+  author: string;
+  authorImage?: string;
+  createdAt: string;
+}
+
 const BlogList = () => {
-  const [blogs, setBlogs] = useState([]);
-  const [loading, setLoading] = useState(true);
+  // 2. Add types to State
+  const [blogs, setBlogs] = useState<Blog[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
 
   // Modal States
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedBlogId, setSelectedBlogId] = useState(null);
-  const [isDeleting, setIsDeleting] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [selectedBlogId, setSelectedBlogId] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState<boolean>(false);
 
-  const fetchBlogs = async () => {
+  // Memoized fetch function to prevent unnecessary re-renders
+  const fetchBlogs = useCallback(async () => {
     try {
       setLoading(true);
       const response = await axios.get("/api/blog");
-      setBlogs(response.data.blogs);
+      // Ensure the response matches your API structure
+      setBlogs(response.data.blogs || []);
     } catch (error) {
+      console.error("Fetch Error:", error);
       toast.error("Error loading blogs");
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  // Function to open modal
-  const confirmDelete = (id) => {
+  // 3. Define type for id parameter
+  const confirmDelete = (id: string) => {
     setSelectedBlogId(id);
     setIsModalOpen(true);
   };
 
-  // Function to actually delete
   const handleDelete = async () => {
+    if (!selectedBlogId) return;
+
     try {
       setIsDeleting(true);
       await axios.delete(`/api/blog?id=${selectedBlogId}`);
       toast.success("Blog deleted successfully");
       setIsModalOpen(false);
-      fetchBlogs(); // Refresh list
+      fetchBlogs();
     } catch (error) {
       toast.error("Failed to delete blog");
     } finally {
@@ -51,7 +66,7 @@ const BlogList = () => {
 
   useEffect(() => {
     fetchBlogs();
-  }, []);
+  }, [fetchBlogs]);
 
   if (loading) {
     return (
@@ -91,6 +106,7 @@ const BlogList = () => {
                       src={blog.image || "/placeholder-blog.png"}
                       alt="blog"
                       fill
+                      sizes="64px"
                       className="object-cover"
                     />
                   </div>
@@ -103,7 +119,6 @@ const BlogList = () => {
                 <td className="px-4 py-4 text-sm text-slate-500">
                   {new Date(blog.createdAt).toLocaleDateString()}
                 </td>
-                {/* Author */}
                 <td className="px-4 py-4">
                   <div className="flex items-center gap-3">
                     <div className="relative w-8 h-8 rounded-full overflow-hidden border border-slate-200 bg-slate-50 flex-shrink-0">
@@ -112,9 +127,8 @@ const BlogList = () => {
                           src={blog.authorImage}
                           alt={blog.author}
                           fill
+                          sizes="32px"
                           className="object-cover"
-                          width={0}
-                          height={0}
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center bg-indigo-100 text-indigo-600 text-[10px] font-bold">
