@@ -1,9 +1,33 @@
 import { NextRequest, NextResponse } from "next/server";
-import { writeFile, mkdir, unlink } from "fs/promises";
-import path from "path";
 import ConnectDB from "@/lib/config/db";
 import BlogModel from "@/lib/models/BlogModel";
 import slugify from "slugify";
+import { v2 as cloudinary } from "cloudinary";
+
+// Cloudinary Config
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
+// Helper function to upload to Cloudinary
+const uploadToCloudinary = async (file: File, folder: string) => {
+  const arrayBuffer = await file.arrayBuffer();
+  const buffer = Buffer.from(arrayBuffer);
+
+  return new Promise((resolve, reject) => {
+    cloudinary.uploader
+      .upload_stream(
+        { resource_type: "image", folder: folder },
+        (error, result) => {
+          if (error) reject(error);
+          else resolve(result);
+        },
+      )
+      .end(buffer);
+  });
+};
 
 // GET ALL BLOGS
 export async function GET() {
@@ -12,9 +36,8 @@ export async function GET() {
     const blogs = await BlogModel.find({}).sort({ createdAt: -1 });
     return NextResponse.json({ success: true, blogs }, { status: 200 });
   } catch (error) {
-    console.error("Error fetching blogs:", error);
     return NextResponse.json(
-      { success: false, message: "Internal Server Error" },
+      { success: false, message: "Server Error" },
       { status: 500 },
     );
   }
@@ -24,7 +47,6 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     await ConnectDB();
-
     const formData = await request.formData();
 
     const title = formData.get("title") as string;
@@ -48,49 +70,21 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const allowedTypes = ["image/jpeg", "image/png", "image/webp", "image/jpg"];
-    if (
-      !allowedTypes.includes(image.type) ||
-      !allowedTypes.includes(authorImage.type)
-    ) {
-      return NextResponse.json(
-        {
-          success: false,
-          message: "Only JPEG, PNG, and WebP images are allowed",
-        },
-        { status: 400 },
-      );
-    }
-
-    const uploadDir = path.join(process.cwd(), "public", "uploads");
-    await mkdir(uploadDir, { recursive: true });
-
-    const timestamp = Date.now();
-
-    const imageExt = image.type.split("/")[1];
-    const imageName = `blog_${timestamp}.${imageExt}`;
-    const imageBytes = await image.arrayBuffer();
-    await writeFile(path.join(uploadDir, imageName), Buffer.from(imageBytes));
-
-    const authorImageExt = authorImage.type.split("/")[1];
-    const authorImageName = `author_${timestamp}.${authorImageExt}`;
-    const authorImageBytes = await authorImage.arrayBuffer();
-    await writeFile(
-      path.join(uploadDir, authorImageName),
-      Buffer.from(authorImageBytes),
+    // --- Cloudinary Uploads ---
+    const imageUpload: any = await uploadToCloudinary(image, "blog_images");
+    const authorImageUpload: any = await uploadToCloudinary(
+      authorImage,
+      "author_images",
     );
 
-    // ── Slug generation ──────────────────────────────
+    // --- Slug generation ---
     const baseSlug = slugify(title, { lower: true, strict: true });
     let slug = baseSlug;
     let count = 1;
-
-    // Duplicate slug check
     while (await BlogModel.findOne({ slug })) {
       slug = `${baseSlug}-${count}`;
       count++;
     }
-    // ────────────────────────────────────────────────────
 
     const newBlog = await BlogModel.create({
       title,
@@ -99,8 +93,8 @@ export async function POST(request: NextRequest) {
       author,
       likes: 0,
       slug,
-      image: `/uploads/${imageName}`,
-      authorImage: `/uploads/${authorImageName}`,
+      image: imageUpload.secure_url, // Cloudinary URL
+      authorImage: authorImageUpload.secure_url, // Cloudinary URL
     });
 
     return NextResponse.json(
@@ -108,17 +102,9 @@ export async function POST(request: NextRequest) {
       { status: 201 },
     );
   } catch (error: any) {
-    if (error.name === "ValidationError") {
-      const messages = Object.values(error.errors).map((e: any) => e.message);
-      return NextResponse.json(
-        { success: false, message: messages.join(", ") },
-        { status: 400 },
-      );
-    }
-
     console.error("Error creating blog:", error);
     return NextResponse.json(
-      { success: false, message: "Internal Server Error" },
+      { success: false, message: error.message || "Internal Server Error" },
       { status: 500 },
     );
   }
@@ -128,38 +114,20 @@ export async function POST(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
   try {
     await ConnectDB();
-
     const { searchParams } = new URL(request.url);
     const id = searchParams.get("id");
 
-    if (!id) {
+    if (!id)
       return NextResponse.json(
-        { success: false, message: "ID is required" },
+        { success: false, message: "ID required" },
         { status: 400 },
       );
-    }
 
-    const blog = await BlogModel.findById(id);
-    if (!blog) {
-      return NextResponse.json(
-        { success: false, message: "Blog not found" },
-        { status: 404 },
-      );
-    }
-
-    const imagePath = path.join(process.cwd(), "public", blog.image);
-    const authorImgPath = path.join(process.cwd(), "public", blog.authorImage);
-
-    await unlink(imagePath).catch(() => console.log("Blog image already gone"));
-    await unlink(authorImgPath).catch(() =>
-      console.log("Author image already gone"),
-    );
-
+    // Note: Cloudinary se delete karne ke liye public_id chahiye hoti hai.
+    // Filhal hum sirf DB se record delete kar rahe hain.
     await BlogModel.findByIdAndDelete(id);
-
     return NextResponse.json({ success: true, message: "Blog deleted" });
   } catch (error) {
-    console.error(error);
     return NextResponse.json(
       { success: false, message: "Server Error" },
       { status: 500 },
