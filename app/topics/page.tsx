@@ -4,12 +4,13 @@ import React from "react";
 import Link from "next/link";
 import { Hammer, ArrowLeft, Bell } from "lucide-react";
 import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 
 const Topics = () => {
   return (
     <>
       <Navbar />
-      <div className="min-h-[80vh] flex items-center justify-center px-6">
+      <div className="min-h-[80vh] flex items-center justify-center px-6 mb-6">
         {/* NAVBAR */}
 
         <div className="max-w-2xl w-full text-center mt-4">
@@ -63,6 +64,7 @@ const Topics = () => {
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 -z-10 w-96 h-96 bg-[#48cae4]/5 blur-[120px] rounded-full"></div>
         </div>
       </div>
+      <Footer />
     </>
   );
 };
