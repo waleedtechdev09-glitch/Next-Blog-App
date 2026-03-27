@@ -12,6 +12,7 @@ import {
 import Link from "next/link";
 import axios from "axios";
 import { toast } from "react-toastify";
+import Navbar from "./Navbar";
 
 const Header = () => {
   const [email, setEmail] = useState("");
@@ -90,38 +91,7 @@ const Header = () => {
   return (
     <header className="w-full bg-gradient-to-b from-slate-50 to-white border-b border-gray-100">
       {/* --- NAVIGATION BAR --- */}
-      <nav className="max-w-6xl mx-auto flex items-center justify-between px-6 py-5 border-b border-gray-100">
-        <Link href="/" className="flex items-center gap-1">
-          <Image
-            src="/blog-logo.png"
-            alt="logo"
-            width={32}
-            height={32}
-            className="object-contain"
-          />
-          <span className="text-lg font-semibold text-gray-900 tracking-tight">
-            Devlog
-          </span>
-        </Link>
-        <div className="hidden md:flex items-center gap-7 text-sm text-gray-500">
-          {["Articles", "Topics", "Newsletter", "About"].map((item) => (
-            <a
-              key={item}
-              href="#"
-              className="hover:text-gray-900 transition-colors"
-            >
-              {item}
-            </a>
-          ))}
-        </div>
-        <a
-          href="#"
-          className="text-sm font-medium text-gray-100 border bg-[#48cae4] border-gray-200 rounded-lg px-4 py-2 hover:bg-[#00b4d8] transition-colors"
-        >
-          Get Started
-        </a>
-      </nav>
-
+      <Navbar />
       {/* --- HERO SECTION --- */}
       <div className="max-w-6xl mx-auto px-6 py-28 md:py-36">
         <div className="max-w-3xl mx-auto text-center">

@@ -4,6 +4,7 @@ import Footer from "@/components/Footer";
 import Link from "next/link";
 import LikeButton from "@/components/LikeButton"; // ← add karo
 import CommentSection from "@/components/CommentSection";
+import Navbar from "@/components/Navbar";
 
 interface Blog {
   _id: string;
@@ -59,37 +60,7 @@ const BlogPage = async ({ params }: PageProps) => {
   return (
     <>
       {/* NAVBAR */}
-      <nav className="max-w-6xl mx-auto flex items-center justify-between px-6 py-5 border-b border-gray-100">
-        <Link href="/" className="flex items-center gap-1">
-          <Image
-            src="/blog-logo.png"
-            alt="logo"
-            width={32}
-            height={32}
-            className="object-contain"
-          />
-          <span className="text-lg font-semibold text-gray-900 tracking-tight">
-            Devlog
-          </span>
-        </Link>
-        <div className="hidden md:flex items-center gap-7 text-sm text-gray-500">
-          {["Articles", "Topics", "Newsletter", "About"].map((item) => (
-            <a
-              key={item}
-              href="#"
-              className="hover:text-gray-900 transition-colors"
-            >
-              {item}
-            </a>
-          ))}
-        </div>
-        <a
-          href="#"
-          className="text-sm font-medium text-gray-900 border border-gray-200 rounded-lg px-4 py-2 hover:bg-gray-50 transition-colors"
-        >
-          Get Started
-        </a>
-      </nav>
+      <Navbar />
 
       <div className="max-w-3xl mx-auto px-6 py-16">
         {/* Category */}
