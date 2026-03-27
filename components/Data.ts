@@ -1,0 +1,58 @@
+export const blogs = [
+  {
+    id: 1,
+    title: "How to Build a Modern Web App",
+    desc: "Learn how to create fast, scalable, and modern web applications using React, Next.js, and Tailwind CSS.",
+    image: "/blog-logo.png",
+    category: "Development",
+  },
+  {
+    id: 2,
+    title: "Understanding JavaScript Closures",
+    desc: "A deep dive into closures in JavaScript and how they work behind the scenes with practical examples.",
+    image: "/blog2.jpg",
+    category: "JavaScript",
+  },
+  {
+    id: 3,
+    title: "Top 10 React Best Practices",
+    desc: "Improve your React apps with these essential best practices every developer should follow.",
+    image: "/blog3.jpg",
+    category: "React",
+  },
+  {
+    id: 4,
+    title: "Getting Started with Next.js",
+    desc: "Step-by-step guide to building your first full-stack app using Next.js and API routes.",
+    image: "/blog4.jpg",
+    category: "Next.js",
+  },
+  {
+    id: 5,
+    title: "CSS Tricks for Better UI Design",
+    desc: "Enhance your UI with modern CSS techniques, animations, and layout tricks.",
+    image: "/blog5.jpg",
+    category: "Design",
+  },
+  {
+    id: 6,
+    title: "Node.js Performance Tips",
+    desc: "Optimize your backend with these powerful Node.js performance techniques.",
+    image: "/blog6.jpg",
+    category: "Backend",
+  },
+  {
+    id: 7,
+    title: "Responsive Design Made Easy",
+    desc: "Learn how to create responsive layouts that work perfectly on all screen sizes.",
+    image: "/blog7.jpg",
+    category: "UI/UX",
+  },
+  {
+    id: 8,
+    title: "API Integration in React",
+    desc: "A beginner-friendly guide to fetching and managing API data in React applications.",
+    image: "/blog8.jpg",
+    category: "API",
+  },
+];
