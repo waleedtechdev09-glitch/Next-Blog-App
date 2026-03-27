@@ -1,10 +1,5 @@
-// next.config.ts
-import type { NextConfig } from "next";
+import { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  images: {
-    domains: ["localhost"],
-  },
+  images: {},
 };
-
-export default nextConfig;
