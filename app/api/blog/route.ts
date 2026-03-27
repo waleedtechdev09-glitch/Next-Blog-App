@@ -93,8 +93,8 @@ export async function POST(request: NextRequest) {
       author,
       likes: 0,
       slug,
-      image: imageUpload.secure_url, // Cloudinary URL
-      authorImage: authorImageUpload.secure_url, // Cloudinary URL
+      image: imageUpload.secure_url,
+      authorImage: authorImageUpload.secure_url,
     });
 
     return NextResponse.json(
