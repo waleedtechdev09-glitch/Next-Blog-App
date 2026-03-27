@@ -84,7 +84,7 @@ const AddProduct = () => {
 
     setLoading(true);
 
-    // Loading toast — ID save karo taake baad mein update kar sakein
+    // Loading toast
     const toastId = toast.loading("Publishing your blog post...");
 
     const formData = new FormData();
@@ -105,7 +105,6 @@ const AddProduct = () => {
       const data = await res.json();
 
       if (data.success) {
-        // Loading toast ko success mein update karo
         toast.update(toastId, {
           render: "Blog published successfully! 🎉",
           type: "success",
@@ -115,7 +114,6 @@ const AddProduct = () => {
         });
         resetForm();
       } else {
-        // Server se aaya error message dikhao
         toast.update(toastId, {
           render: data.message || "Failed to publish blog",
           type: "error",
@@ -139,17 +137,18 @@ const AddProduct = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 pl-64">
-      <div className="max-w-3xl mx-auto px-8 py-10">
+    <div className="min-h-screen bg-gray-50 pt-0 md:pt-0">
+      {/* Mobile: No left padding, Desktop: ml-64 handled by layout */}
+      <div className="max-w-3xl mx-auto px-4 md:px-8 py-6 md:py-10">
         {/* Header */}
-        <div className="mb-10">
+        <div className="mb-8 md:mb-10">
           <div className="flex items-center gap-2 mb-1">
             <div className="w-1 h-6 bg-black rounded-full" />
             <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest">
               Dashboard
             </p>
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 tracking-tight">
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-900 tracking-tight">
             Add New Blog
           </h1>
           <p className="text-gray-500 text-sm mt-1">
@@ -157,21 +156,21 @@ const AddProduct = () => {
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6">
           {/* Blog Image Upload */}
-          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 md:p-6">
             <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-4">
               <ImagePlus size={16} className="text-gray-400" />
               Blog Cover Image
             </label>
 
             {imagePreview ? (
-              <div className="relative w-full h-52 rounded-xl overflow-hidden group">
+              <div className="relative w-full h-40 md:h-52 rounded-xl overflow-hidden group">
                 <Image
                   src={imagePreview}
                   alt="preview"
-                  width={20}
-                  height={20}
+                  width={400}
+                  height={200}
                   className="w-full h-full object-cover"
                 />
                 <button
@@ -189,12 +188,12 @@ const AddProduct = () => {
               <button
                 type="button"
                 onClick={() => imageRef.current?.click()}
-                className="w-full h-48 border-2 border-dashed border-gray-200 rounded-xl flex flex-col items-center justify-center gap-2 hover:border-black hover:bg-gray-50 transition-all duration-200 group"
+                className="w-full h-40 md:h-48 border-2 border-dashed border-gray-200 rounded-xl flex flex-col items-center justify-center gap-2 hover:border-black hover:bg-gray-50 transition-all duration-200 group"
               >
                 <div className="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center group-hover:bg-black group-hover:text-white transition-all">
                   <Upload size={18} />
                 </div>
-                <p className="text-sm font-medium text-gray-500 group-hover:text-gray-900">
+                <p className="text-sm font-medium text-gray-500 group-hover:text-gray-900 px-4 text-center">
                   Click to upload cover image
                 </p>
                 <p className="text-xs text-gray-400">
@@ -212,7 +211,7 @@ const AddProduct = () => {
           </div>
 
           {/* Text Fields */}
-          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-5">
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 md:p-6 space-y-4 md:space-y-5">
             <label className="flex items-center gap-2 text-sm font-semibold text-gray-700">
               <FileText size={16} className="text-gray-400" />
               Blog Details
@@ -276,22 +275,22 @@ const AddProduct = () => {
           </div>
 
           {/* Author Section */}
-          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-            <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-5">
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 md:p-6">
+            <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-4 md:mb-5">
               <User size={16} className="text-gray-400" />
               Author Details
             </label>
 
-            <div className="flex items-center gap-5">
-              <div className="flex-shrink-0">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 md:gap-5">
+              <div className="flex-shrink-0 w-full sm:w-auto">
                 {authorPreview ? (
                   <div className="relative group">
                     <Image
                       src={authorPreview}
                       alt="author"
                       className="w-16 h-16 rounded-2xl object-cover border-2 border-gray-100"
-                      width={20}
-                      height={20}
+                      width={64}
+                      height={64}
                     />
                     <button
                       type="button"
@@ -328,7 +327,7 @@ const AddProduct = () => {
                 />
               </div>
 
-              <div className="flex-1">
+              <div className="flex-1 w-full">
                 <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
                   Author Name
                 </label>

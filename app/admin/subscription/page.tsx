@@ -17,7 +17,7 @@ interface Subscriber {
   _id: string;
   email: string;
   date: string;
-  createdAt: string; // timestamps: true se bhi aata hai, backup ke liye
+  createdAt: string;
 }
 
 // ── Delete Confirmation Modal ──────────────────────────────────────────────
@@ -33,7 +33,7 @@ const DeleteModal = ({
   loading: boolean;
 }) => (
   <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
-    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 animate-in fade-in zoom-in-95 duration-200">
+    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-5 md:p-6 animate-in fade-in zoom-in-95 duration-200">
       {/* Icon */}
       <div className="flex items-center justify-center w-12 h-12 rounded-full bg-red-50 mx-auto mb-4">
         <AlertTriangle className="w-6 h-6 text-red-500" />
@@ -54,11 +54,11 @@ const DeleteModal = ({
       </p>
 
       {/* Buttons */}
-      <div className="flex gap-3">
+      <div className="flex gap-3 flex-col sm:flex-row">
         <button
           onClick={onCancel}
           disabled={loading}
-          className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-gray-600 bg-gray-100 rounded-xl hover:bg-gray-200 transition-all disabled:opacity-50"
+          className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-gray-600 bg-gray-100 rounded-xl hover:bg-gray-200 transition-all disabled:opacity-50 order-2 sm:order-1"
         >
           <X className="w-4 h-4" />
           Cancel
@@ -66,7 +66,7 @@ const DeleteModal = ({
         <button
           onClick={onConfirm}
           disabled={loading}
-          className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-bold text-white bg-red-500 rounded-xl hover:bg-red-600 active:scale-95 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+          className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-bold text-white bg-red-500 rounded-xl hover:bg-red-600 active:scale-95 transition-all disabled:opacity-60 disabled:cursor-not-allowed order-1 sm:order-2"
         >
           {loading ? (
             <RefreshCw className="w-4 h-4 animate-spin" />
@@ -106,12 +106,10 @@ const SubscribersPage = () => {
     fetchSubscribers();
   }, []);
 
-  // Opens modal
   const confirmDelete = (subscriber: Subscriber) => {
     setModalTarget(subscriber);
   };
 
-  // Called when user clicks "Yes, Remove" in modal
   const handleDelete = async () => {
     if (!modalTarget) return;
 
@@ -141,9 +139,17 @@ const SubscribersPage = () => {
       day: "numeric",
     });
 
+  const thisMonthCount = subscribers.filter((s) => {
+    const d = new Date(s.createdAt);
+    const now = new Date();
+    return (
+      d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear()
+    );
+  }).length;
+
   return (
     <>
-      {/* Delete Confirmation Modal */}
+      {/* Delete Modal */}
       {modalTarget && (
         <DeleteModal
           email={modalTarget.email}
@@ -153,12 +159,14 @@ const SubscribersPage = () => {
         />
       )}
 
-      <div className="min-h-screen bg-gray-50 p-6 md:p-10">
+      <div className="min-h-screen bg-gray-50 p-4 md:p-6 lg:p-10">
         <div className="max-w-5xl mx-auto space-y-6">
           {/* Header */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Subscribers</h1>
+              <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
+                Subscribers
+              </h1>
               <p className="text-sm text-gray-500 mt-1">
                 Manage your newsletter subscribers
               </p>
@@ -166,7 +174,7 @@ const SubscribersPage = () => {
             <button
               onClick={fetchSubscribers}
               disabled={loading}
-              className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 hover:border-gray-300 transition-all disabled:opacity-50"
+              className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 hover:border-gray-300 transition-all disabled:opacity-50 w-full sm:w-auto justify-center sm:justify-start"
             >
               <RefreshCw
                 className={`w-4 h-4 ${loading ? "animate-spin" : ""}`}
@@ -175,13 +183,14 @@ const SubscribersPage = () => {
             </button>
           </div>
 
-          {/* Stats Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          {/* Stats Cards - Responsive Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {/* Total */}
             <div className="bg-white rounded-2xl border border-gray-100 p-5 flex items-center gap-4 shadow-sm">
-              <div className="bg-indigo-50 p-3 rounded-xl">
+              <div className="bg-indigo-50 p-3 rounded-xl shrink-0">
                 <Users className="w-5 h-5 text-indigo-600" />
               </div>
-              <div>
+              <div className="min-w-0">
                 <p className="text-xs font-medium text-gray-400 uppercase tracking-wide">
                   Total
                 </p>
@@ -191,34 +200,27 @@ const SubscribersPage = () => {
               </div>
             </div>
 
+            {/* This Month */}
             <div className="bg-white rounded-2xl border border-gray-100 p-5 flex items-center gap-4 shadow-sm">
-              <div className="bg-green-50 p-3 rounded-xl">
+              <div className="bg-green-50 p-3 rounded-xl shrink-0">
                 <Mail className="w-5 h-5 text-green-600" />
               </div>
-              <div>
+              <div className="min-w-0">
                 <p className="text-xs font-medium text-gray-400 uppercase tracking-wide">
                   This Month
                 </p>
                 <p className="text-2xl font-bold text-gray-900">
-                  {
-                    subscribers.filter((s) => {
-                      const d = new Date(s.createdAt);
-                      const now = new Date();
-                      return (
-                        d.getMonth() === now.getMonth() &&
-                        d.getFullYear() === now.getFullYear()
-                      );
-                    }).length
-                  }
+                  {thisMonthCount}
                 </p>
               </div>
             </div>
 
-            <div className="bg-white rounded-2xl border border-gray-100 p-5 flex items-center gap-4 shadow-sm">
-              <div className="bg-amber-50 p-3 rounded-xl">
+            {/* Search Results */}
+            <div className="bg-white rounded-2xl border border-gray-100 p-5 flex items-center gap-4 shadow-sm sm:col-span-2 lg:col-span-1">
+              <div className="bg-amber-50 p-3 rounded-xl shrink-0">
                 <Search className="w-5 h-5 text-amber-600" />
               </div>
-              <div>
+              <div className="min-w-0">
                 <p className="text-xs font-medium text-gray-400 uppercase tracking-wide">
                   Search Results
                 </p>
@@ -231,8 +233,8 @@ const SubscribersPage = () => {
 
           {/* Table Card */}
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-            {/* Search */}
-            <div className="px-6 py-4 border-b border-gray-100">
+            {/* Search Input */}
+            <div className="px-4 md:px-6 py-4 border-b border-gray-100">
               <div className="relative max-w-sm">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                 <input
@@ -245,9 +247,9 @@ const SubscribersPage = () => {
               </div>
             </div>
 
-            {/* Table Body */}
+            {/* Table or Empty/Loading State */}
             {loading ? (
-              <div className="flex items-center justify-center py-24">
+              <div className="flex items-center justify-center py-16 md:py-24">
                 <div className="flex flex-col items-center gap-3">
                   <RefreshCw className="w-6 h-6 text-indigo-400 animate-spin" />
                   <p className="text-sm text-gray-400">
@@ -256,94 +258,138 @@ const SubscribersPage = () => {
                 </div>
               </div>
             ) : filtered.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-24 gap-3">
+              <div className="flex flex-col items-center justify-center py-16 md:py-24 gap-3">
                 <div className="bg-gray-100 p-4 rounded-full">
                   <Mail className="w-6 h-6 text-gray-400" />
                 </div>
                 <p className="text-sm font-medium text-gray-500">
                   {search ? "No results found" : "No subscribers yet"}
                 </p>
-                <p className="text-xs text-gray-400">
+                <p className="text-xs text-gray-400 text-center px-4">
                   {search
                     ? "Try a different search term"
                     : "Share your newsletter to get started"}
                 </p>
               </div>
             ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b border-gray-100 bg-gray-50/50">
-                      <th className="text-left px-6 py-3.5 text-xs font-semibold text-gray-400 uppercase tracking-wider">
-                        #
-                      </th>
-                      <th className="text-left px-6 py-3.5 text-xs font-semibold text-gray-400 uppercase tracking-wider">
-                        Email Address
-                      </th>
-                      <th className="text-left px-6 py-3.5 text-xs font-semibold text-gray-400 uppercase tracking-wider">
-                        Subscribed On
-                      </th>
-                      <th className="text-right px-6 py-3.5 text-xs font-semibold text-gray-400 uppercase tracking-wider">
-                        Action
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-50">
-                    {filtered.map((subscriber, index) => (
-                      <tr
-                        key={subscriber._id}
-                        className="hover:bg-gray-50/50 transition-colors group"
-                      >
-                        <td className="px-6 py-4 text-gray-400 font-mono text-xs">
-                          {index + 1}
-                        </td>
-                        <td className="px-6 py-4">
-                          <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center shrink-0">
-                              <span className="text-xs font-bold text-indigo-600">
-                                {subscriber.email[0].toUpperCase()}
+              <>
+                {/* Desktop Table */}
+                <div className="hidden sm:block overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b border-gray-100 bg-gray-50/50">
+                        <th className="text-left px-6 py-3.5 text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                          #
+                        </th>
+                        <th className="text-left px-6 py-3.5 text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                          Email Address
+                        </th>
+                        <th className="text-left px-6 py-3.5 text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                          Subscribed On
+                        </th>
+                        <th className="text-right px-6 py-3.5 text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                          Action
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-50">
+                      {filtered.map((subscriber, index) => (
+                        <tr
+                          key={subscriber._id}
+                          className="hover:bg-gray-50/50 transition-colors group"
+                        >
+                          <td className="px-6 py-4 text-gray-400 font-mono text-xs">
+                            {index + 1}
+                          </td>
+                          <td className="px-6 py-4">
+                            <div className="flex items-center gap-3">
+                              <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center shrink-0">
+                                <span className="text-xs font-bold text-indigo-600">
+                                  {subscriber.email[0].toUpperCase()}
+                                </span>
+                              </div>
+                              <span className="font-medium text-gray-800">
+                                {subscriber.email}
                               </span>
                             </div>
-                            <span className="font-medium text-gray-800">
-                              {subscriber.email}
+                          </td>
+                          <td className="px-6 py-4 text-gray-500 text-sm">
+                            {formatDate(
+                              subscriber.date || subscriber.createdAt,
+                            )}
+                          </td>
+                          <td className="px-6 py-4 text-right">
+                            <button
+                              onClick={() => confirmDelete(subscriber)}
+                              disabled={deletingId === subscriber._id}
+                              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-red-500 bg-red-50 rounded-lg hover:bg-red-100 hover:text-red-600 transition-all opacity-0 group-hover:opacity-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                              Remove
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Mobile Card View */}
+                <div className="sm:hidden divide-y divide-gray-100">
+                  {filtered.map((subscriber, index) => (
+                    <div
+                      key={subscriber._id}
+                      className="px-4 py-4 flex flex-col gap-3 hover:bg-gray-50/50 transition-colors group"
+                    >
+                      <div className="flex items-center justify-between gap-3">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center shrink-0">
+                            <span className="text-xs font-bold text-indigo-600">
+                              {subscriber.email[0].toUpperCase()}
                             </span>
                           </div>
-                        </td>
-                        <td className="px-6 py-4 text-gray-500">
+                          <div>
+                            <p className="text-xs text-gray-400 font-mono">
+                              #{index + 1}
+                            </p>
+                            <p className="font-medium text-gray-900 break-all">
+                              {subscriber.email}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex items-center justify-between pt-2 border-t border-gray-100">
+                        <p className="text-xs text-gray-500">
                           {formatDate(subscriber.date || subscriber.createdAt)}
-                        </td>
-                        <td className="px-6 py-4 text-right">
-                          <button
-                            onClick={() => confirmDelete(subscriber)}
-                            disabled={deletingId === subscriber._id}
-                            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-red-500 bg-red-50 rounded-lg hover:bg-red-100 hover:text-red-600 transition-all opacity-0 group-hover:opacity-100 disabled:opacity-50 disabled:cursor-not-allowed"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                            Remove
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
+                        </p>
+                        <button
+                          onClick={() => confirmDelete(subscriber)}
+                          disabled={deletingId === subscriber._id}
+                          className="flex items-center gap-1.5 px-2 py-1 text-xs font-medium text-red-500 bg-red-50 rounded-lg hover:bg-red-100 hover:text-red-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          <Trash2 className="w-3 h-3" />
+                          Remove
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
 
-            {/* Footer */}
-            {!loading && filtered.length > 0 && (
-              <div className="px-6 py-3.5 border-t border-gray-100 bg-gray-50/30">
-                <p className="text-xs text-gray-400">
-                  Showing{" "}
-                  <span className="font-medium text-gray-600">
-                    {filtered.length}
-                  </span>{" "}
-                  of{" "}
-                  <span className="font-medium text-gray-600">
-                    {subscribers.length}
-                  </span>{" "}
-                  subscribers
-                </p>
-              </div>
+                {/* Footer */}
+                <div className="px-4 md:px-6 py-3.5 border-t border-gray-100 bg-gray-50/30">
+                  <p className="text-xs text-gray-400">
+                    Showing{" "}
+                    <span className="font-medium text-gray-600">
+                      {filtered.length}
+                    </span>{" "}
+                    of{" "}
+                    <span className="font-medium text-gray-600">
+                      {subscribers.length}
+                    </span>{" "}
+                    subscribers
+                  </p>
+                </div>
+              </>
             )}
           </div>
         </div>
