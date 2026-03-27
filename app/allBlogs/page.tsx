@@ -17,6 +17,7 @@ interface Blog {
   author: string;
   authorImage: string;
   createdAt: string;
+  slug: string;
 }
 
 const AllBlogsPage = () => {
@@ -29,6 +30,7 @@ const AllBlogsPage = () => {
       const res = await fetch("/api/blog");
       const data = await res.json();
       if (data.success) {
+        console.log("Sample Blog Data:", data.blogs[0]); // Check karein yahan 'slug' likha aa raha hai ya nahi
         setBlogs(data.blogs);
       }
     } catch (err) {
@@ -109,7 +111,7 @@ const AllBlogsPage = () => {
             <BlogItem
               key={blog._id}
               title={blog.title}
-              id={blog._id}
+              id={blog.slug || blog._id}
               desc={blog.description}
               image={blog.image}
               category={blog.category}

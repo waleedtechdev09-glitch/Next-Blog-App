@@ -80,7 +80,7 @@ const BlogList = () => {
           <BlogItem
             key={blog._id}
             title={blog.title}
-            id={blog._id}
+            id={blog.slug || blog._id}
             desc={blog.description}
             image={blog.image}
             category={blog.category}
