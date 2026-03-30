@@ -1,16 +1,22 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-export function middleware(req: NextRequest) {
-  const { pathname } = req.nextUrl;
+export function middleware(request: NextRequest) {
+  const cookie = request.cookies.get("admin-auth");
 
-  const isAdminRoute = pathname.startsWith("/admin");
-  const isLoginPage = pathname === "/admin/login";
+  const isLoggedIn = cookie?.value === "true";
 
-  const adminCookie = req.cookies.get("admin");
+  const isAdminRoute = request.nextUrl.pathname.startsWith("/admin");
+  const isLoginPage = request.nextUrl.pathname === "/admin/login";
 
-  if (isAdminRoute && !isLoginPage && !adminCookie) {
-    return NextResponse.redirect(new URL("/admin/login", req.url));
+  // ❌ If not logged in and trying to access admin → redirect to login
+  if (isAdminRoute && !isLoginPage && !isLoggedIn) {
+    return NextResponse.redirect(new URL("/admin/login", request.url));
+  }
+
+  //  If already logged in and trying to open login page → redirect to admin
+  if (isLoginPage && isLoggedIn) {
+    return NextResponse.redirect(new URL("/admin", request.url));
   }
 
   return NextResponse.next();

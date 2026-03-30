@@ -1,22 +1,16 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import {
-  PlusCircle,
-  FileText,
-  CreditCard,
-  ChevronRight,
-  Menu,
-  X,
-} from "lucide-react";
+import { PlusCircle, FileText, CreditCard, Menu, X } from "lucide-react";
 import Image from "next/image";
 
 const Sidebar = () => {
   const pathname = usePathname();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   const menuItems = [
     {
@@ -41,11 +35,23 @@ const Sidebar = () => {
 
   const closeMobileMenu = () => setIsMobileOpen(false);
 
+  useEffect(() => {
+    const getCookie = (name: string) => {
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      if (parts.length === 2) return parts.pop()?.split(";")[0];
+    };
+
+    const auth = getCookie("admin-auth");
+    setIsLoggedIn(auth === "true");
+  }, []);
+
   const handleLogout = async () => {
     await fetch("/api/admin/logout", {
       method: "POST",
     });
 
+    setIsLoggedIn(false); // ✅ immediately hide button
     window.location.href = "/admin/login";
   };
 
@@ -90,17 +96,20 @@ const Sidebar = () => {
         <div className="px-3 pb-5">
           <div className="h-px bg-gray-100 mb-3" />
 
-          <button
-            onClick={() => setShowLogoutModal(true)}
-            className="w-full mt-2 bg-[#48cae4] hover:bg-[#5BC0EB] cursor-pointer text-white text-sm py-2 rounded-lg"
-          >
-            Logout
-          </button>
+          {/* ✅ Show logout only if logged in */}
+          {isLoggedIn && (
+            <button
+              onClick={() => setShowLogoutModal(true)}
+              className="w-full mt-2 bg-[#48cae4] hover:bg-[#5BC0EB] text-white text-sm py-2 rounded-lg"
+            >
+              Logout
+            </button>
+          )}
         </div>
       </aside>
 
       {/* MOBILE HEADER */}
-      <div className="md:hidden fixed top-0 left-0 right-0 bg-white  h-16 flex items-center justify-between px-4 z-50">
+      <div className="md:hidden fixed top-0 left-0 right-0 bg-white h-16 flex items-center justify-between px-4 z-50">
         <Link href="/" className="flex items-center gap-2">
           <Image src="/blog-logo.png" alt="logo" width={28} height={28} />
           <span className="font-semibold">Devlog</span>
@@ -149,12 +158,15 @@ const Sidebar = () => {
         </nav>
 
         <div className="px-3 pb-5">
-          <button
-            onClick={() => setShowLogoutModal(true)}
-            className="w-full mt-4 cursor-pointer bg-[#48cae4] text-white py-2 rounded-lg"
-          >
-            Logout
-          </button>
+          {/* ✅ Show logout only if logged in */}
+          {isLoggedIn && (
+            <button
+              onClick={() => setShowLogoutModal(true)}
+              className="w-full mt-4 bg-[#48cae4] text-white py-2 rounded-lg"
+            >
+              Logout
+            </button>
+          )}
         </div>
       </aside>
 
@@ -176,14 +188,14 @@ const Sidebar = () => {
             <div className="flex justify-end gap-2">
               <button
                 onClick={() => setShowLogoutModal(false)}
-                className="px-3 py-1.5 text-sm rounded-lg bg-gray-200 cursor-pointer"
+                className="px-3 py-1.5 text-sm rounded-lg bg-gray-200"
               >
                 Cancel
               </button>
 
               <button
                 onClick={handleLogout}
-                className="px-3 py-1.5 text-sm rounded-lg bg-red-600 text-white cursor-pointer"
+                className="px-3 py-1.5 text-sm rounded-lg bg-red-600 text-white"
               >
                 Logout
               </button>

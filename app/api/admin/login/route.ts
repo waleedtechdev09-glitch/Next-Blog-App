@@ -5,7 +5,7 @@ export async function POST(req: Request) {
     return new Response("Success", {
       status: 200,
       headers: {
-        "Set-Cookie": "admin=true; Path=/; HttpOnly",
+        "Set-Cookie": "admin-auth=true; Path=/",
       },
     });
   }
