@@ -96,11 +96,11 @@ const Sidebar = () => {
         <div className="px-3 pb-5">
           <div className="h-px bg-gray-100 mb-3" />
 
-          {/* ✅ Show logout only if logged in */}
+          {/* Show logout only if logged in */}
           {isLoggedIn && (
             <button
               onClick={() => setShowLogoutModal(true)}
-              className="w-full mt-2 bg-[#48cae4] hover:bg-[#5BC0EB] text-white text-sm py-2 rounded-lg"
+              className="w-full mt-2 bg-[#48cae4] hover:bg-[#5BC0EB] text-white text-sm py-2 rounded-lg cursor-pointer"
             >
               Logout
             </button>
@@ -158,11 +158,11 @@ const Sidebar = () => {
         </nav>
 
         <div className="px-3 pb-5">
-          {/* ✅ Show logout only if logged in */}
+          {/*  Show logout only if logged in */}
           {isLoggedIn && (
             <button
               onClick={() => setShowLogoutModal(true)}
-              className="w-full mt-4 bg-[#48cae4] text-white py-2 rounded-lg"
+              className="w-full mt-4 bg-[#48cae4] text-white py-2 rounded-lg cursor-pointer"
             >
               Logout
             </button>
@@ -188,14 +188,14 @@ const Sidebar = () => {
             <div className="flex justify-end gap-2">
               <button
                 onClick={() => setShowLogoutModal(false)}
-                className="px-3 py-1.5 text-sm rounded-lg bg-gray-200"
+                className="px-3 py-1.5 text-sm rounded-lg bg-gray-200 cursor-pointer"
               >
                 Cancel
               </button>
 
               <button
                 onClick={handleLogout}
-                className="px-3 py-1.5 text-sm rounded-lg bg-red-600 text-white"
+                className="px-3 py-1.5 text-sm rounded-lg bg-red-600 text-white cursor-pointer"
               >
                 Logout
               </button>
